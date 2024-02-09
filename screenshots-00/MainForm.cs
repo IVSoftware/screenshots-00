@@ -19,6 +19,22 @@ namespace screenshots_00
                 await ProcessFile(context.Path);        // Now we have a lock on the context.
                 context.Release();                      // Release context for any 'other' awaiters of this context.
             };
+            checkBoxAuto.CheckedChanged += async (sender, e) =>
+            {
+                if(checkBoxAuto.Checked) 
+                {
+                    flowLayoutPanel.Controls.Clear();
+                    while (checkBoxAuto.Checked)
+                    {
+                        var context = new ScreenshotCommandContext { OpenEditor = false }; // Different
+                        SnapshotProviderForm.Execute(context);
+                        await context;
+                        await ProcessFile(context.Path);
+                        context.Release();
+                        await Task.Delay(TimeSpan.FromSeconds(5));
+                    }
+                }
+            };
         }
 
         private async Task ProcessFile(string fullPath)

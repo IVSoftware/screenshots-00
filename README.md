@@ -59,7 +59,6 @@ You can [browse the full example](https://github.com/IVSoftware/screenshots-00.g
 
 [![child window][1]][1]
 
-___
 
 The stand-alone behavior of this child form is to toggle a stopwatch when clicked, and when it's Control-clicked to capture a single screenshot and display it in a new instance of MS Paint and not return until MS Paint is closed by the user.  When the main form requests this action below, it means that if the user makes changes in Paint they will be reflected in the file that the main form subjects to the long-running processing.
 

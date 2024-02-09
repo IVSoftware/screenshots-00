@@ -1,4 +1,6 @@
-# Screenshot loopThere are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
+# Screenshot loop
+
+There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
 
 ```
 public partial class SnapshotProviderForm : Form, ICommand

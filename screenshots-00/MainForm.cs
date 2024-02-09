@@ -7,7 +7,12 @@ namespace screenshots_00
         {
             InitializeComponent();
             Disposed += (sender, e) => SnapshotProviderForm.Dispose();
-            button1.Click += (sender, e) => SnapshotProviderForm.Execute(new SnapshotCommandContext());
+            buttonSingle.Click += async (sender, e) =>
+            {
+                var context = new ScreenshotCommandContext{ OpenEditor = true };
+                SnapshotProviderForm.Execute(context);
+                await context;
+            };
         }
         protected override void OnLoad(EventArgs e)
         {
@@ -15,9 +20,5 @@ namespace screenshots_00
             SnapshotProviderForm.Show(this);
         }
         SnapshotProviderForm SnapshotProviderForm { get; } = new SnapshotProviderForm();
-    }
-    class SnapshotCommandContext
-    {
-        public bool OpenEditor { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,9 +21,14 @@ namespace screenshots_00
             FormBorderStyle = FormBorderStyle.None;
             labelElapsedTime.Click += async(sender, e) =>
             {
-                if (ModifierKeys == Keys.Control) await TakeSnapshotAsync();
-                else Execute(new SnapshotCommandContext { OpenEditor = true });
+                // Control-click to take screenshot and open in editor.
+                if (ModifierKeys == Keys.Control)
+                {
+                    TakeScreenshotAsync(new ScreenshotCommandContext { OpenEditor = true });
+                }
+                else Execute(new ToggleTimerCommandContext());
             };
+            Execute(new ToggleTimerCommandContext());
         }
         
         int _count = 0;
@@ -36,7 +42,7 @@ namespace screenshots_00
         /// <returns>
         /// The name of the saved file.
         /// </returns>
-        public async Task<string> TakeSnapshotAsync(bool openEditor = true)
+        private async void TakeScreenshotAsync(ScreenshotCommandContext context)
         {
             using (Bitmap bmp = new Bitmap(Width, Height))
             {
@@ -46,13 +52,17 @@ namespace screenshots_00
                 }
                 var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
                 Directory.CreateDirectory(folder);
-                var path = Path.Combine(folder, $"Image{_count++:D2}.png");
-                await Task.Run(()=>bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png));
-                if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = path }) is Process process)
+                context.Path = Path.Combine(folder, $"Image{_count++:D2}.png");
+
+                await Task.Run(()=>bmp.Save(context.Path, System.Drawing.Imaging.ImageFormat.Png));
+                if (context.OpenEditor)
                 {
-                    await process.WaitForExitAsync();
+                    if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = context.Path }) is Process process)
+                    {
+                        await process.WaitForExitAsync();
+                    }
                 }
-                return path;
+                context.Release();
             }
         }
 
@@ -60,7 +70,7 @@ namespace screenshots_00
 
         public async void Execute(object? o)
         {
-            if (o is SnapshotCommandContext context)
+            if (o is ToggleTimerCommandContext context)
             {
                 if (_stopwatch.IsRunning)
                 {
@@ -90,7 +100,6 @@ namespace screenshots_00
         CancellationTokenSource? _cts = null;
 
         public event EventHandler? CanExecuteChanged;
-
         private async Task runPeriodicTimer()
         {
             if (!_stopwatch.IsRunning)
@@ -121,5 +130,32 @@ namespace screenshots_00
                 }
             }
         }
+    }
+    class AsyncCommandContext
+    {
+        private SemaphoreSlim _busy { get; } = new SemaphoreSlim(0, 1);
+        public TaskAwaiter GetAwaiter()
+        {
+            return _busy
+            .WaitAsync()        // Do not use the Token here
+            .GetAwaiter();
+        }
+        public ConfiguredTaskAwaitable ConfigureAwait(bool configureAwait)
+        {
+            return
+                _busy
+                .WaitAsync()    // Do not use the Token here, either.
+                .ConfigureAwait(configureAwait);
+        }
+        public void Release()
+        {
+            // Make sure there's something to release.
+            _busy.Wait(0);
+            _busy.Release();
+        }
+    }
+    class ToggleTimerCommandContext: AsyncCommandContext {  }
+    class ScreenshotCommandContext : AsyncCommandContext { public bool OpenEditor { get; set; }
+        public string Path { get; internal set; }
     }
 }

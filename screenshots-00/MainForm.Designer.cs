@@ -29,9 +29,10 @@
         private void InitializeComponent()
         {
             tableLayoutPanel1 = new TableLayoutPanel();
+            flowLayoutPanel = new FlowLayoutPanel();
             buttonSingle = new Button();
             checkBoxAuto = new CheckBox();
-            flowLayoutPanel = new FlowLayoutPanel();
+            progressBar = new ProgressBar();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -43,19 +44,30 @@
             tableLayoutPanel1.Controls.Add(flowLayoutPanel, 0, 0);
             tableLayoutPanel1.Controls.Add(buttonSingle, 0, 1);
             tableLayoutPanel1.Controls.Add(checkBoxAuto, 1, 1);
+            tableLayoutPanel1.Controls.Add(progressBar, 0, 2);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 2;
+            tableLayoutPanel1.RowCount = 3;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle());
             tableLayoutPanel1.Size = new Size(478, 244);
             tableLayoutPanel1.TabIndex = 0;
+            // 
+            // flowLayoutPanel
+            // 
+            flowLayoutPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.SetColumnSpan(flowLayoutPanel, 2);
+            flowLayoutPanel.Location = new Point(3, 3);
+            flowLayoutPanel.Name = "flowLayoutPanel";
+            flowLayoutPanel.Size = new Size(472, 162);
+            flowLayoutPanel.TabIndex = 1;
             // 
             // buttonSingle
             // 
             buttonSingle.Anchor = AnchorStyles.None;
-            buttonSingle.Location = new Point(63, 202);
+            buttonSingle.Location = new Point(63, 176);
             buttonSingle.Name = "buttonSingle";
             buttonSingle.Size = new Size(112, 34);
             buttonSingle.TabIndex = 0;
@@ -66,7 +78,7 @@
             // 
             checkBoxAuto.Anchor = AnchorStyles.None;
             checkBoxAuto.Appearance = Appearance.Button;
-            checkBoxAuto.Location = new Point(302, 202);
+            checkBoxAuto.Location = new Point(302, 176);
             checkBoxAuto.Name = "checkBoxAuto";
             checkBoxAuto.Size = new Size(112, 34);
             checkBoxAuto.TabIndex = 1;
@@ -74,14 +86,15 @@
             checkBoxAuto.TextAlign = ContentAlignment.MiddleCenter;
             checkBoxAuto.UseVisualStyleBackColor = true;
             // 
-            // flowLayoutPanel
+            // progressBar
             // 
-            flowLayoutPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tableLayoutPanel1.SetColumnSpan(flowLayoutPanel, 2);
-            flowLayoutPanel.Location = new Point(3, 3);
-            flowLayoutPanel.Name = "flowLayoutPanel";
-            flowLayoutPanel.Size = new Size(472, 188);
-            flowLayoutPanel.TabIndex = 1;
+            progressBar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.SetColumnSpan(progressBar, 2);
+            progressBar.Location = new Point(3, 221);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(472, 20);
+            progressBar.TabIndex = 2;
+            progressBar.Visible = false;
             // 
             // MainForm
             // 
@@ -102,5 +115,6 @@
         private Button buttonSingle;
         private CheckBox checkBoxAuto;
         private FlowLayoutPanel flowLayoutPanel;
+        private ProgressBar progressBar;
     }
 }

@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Windows.Forms;
 
@@ -39,26 +37,35 @@ namespace screenshots_00
 
         private async Task ProcessFile(string fullPath)
         {
-            Bitmap scaled;
-            using (var orig = Bitmap.FromFile(fullPath))
-            {
-                scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
-                using (Graphics graphics = Graphics.FromImage(scaled))
-                {
-                    graphics.DrawImage(orig, 0, 0, scaled.Width, scaled.Height);
-                    var pictureBox = new PictureBox
-                    {
-                        Size = scaled.Size,
-                        Image = scaled,
-                    };
-                    BeginInvoke(() =>
-                    {
-                        flowLayoutPanel.Controls.Add(pictureBox);
-                    });
-                }
-            }
             await Task.Run(() =>
             {
+                Bitmap scaled;
+                using (var orig = Bitmap.FromFile(fullPath))
+                {
+                    scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
+                    using (Graphics graphics = Graphics.FromImage(scaled))
+                    {
+                        graphics.DrawImage(orig, 0, 0, scaled.Width, scaled.Height);
+                        var pictureBox = new PictureBox
+                        {
+                            Size = scaled.Size,
+                            Image = scaled,
+                        };
+                        BeginInvoke(() =>
+                        {
+                            flowLayoutPanel.Controls.Add(pictureBox);
+                        });
+                    }
+                }
+                // Process long running task.
+                for (int i = 1; i <= 100; i++)
+                {
+                    BeginInvoke(() =>
+                    {
+                        progressBar.SetProgress(i);
+                    });
+                    Thread.Sleep(10); // Block this non-ui thread.
+                }
             });
         }
 
@@ -68,5 +75,13 @@ namespace screenshots_00
             SnapshotProviderForm.Show(this);
         }
         SnapshotProviderForm SnapshotProviderForm { get; } = new SnapshotProviderForm();
+    }
+    static partial class Extensions
+    {
+        public static void SetProgress(this ProgressBar progressBar, int value) 
+        {
+            progressBar.Value = value;
+            progressBar.Visible = value != 0 && Math.Ceiling((double)value) < 100;
+        }
     }
 }

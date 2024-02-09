@@ -31,7 +31,9 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             buttonSingle = new Button();
             checkBoxAuto = new CheckBox();
+            pictureBox = new PictureBox();
             tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -71,16 +73,27 @@
             checkBoxAuto.TextAlign = ContentAlignment.MiddleCenter;
             checkBoxAuto.UseVisualStyleBackColor = true;
             // 
+            // pictureBox
+            // 
+            pictureBox.BackColor = Color.Azure;
+            pictureBox.Location = new Point(0, -13);
+            pictureBox.Name = "pictureBox";
+            pictureBox.Size = new Size(448, 177);
+            pictureBox.TabIndex = 1;
+            pictureBox.TabStop = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(478, 244);
+            Controls.Add(pictureBox);
             Controls.Add(tableLayoutPanel1);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Main Form";
             tableLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBox).EndInit();
             ResumeLayout(false);
         }
 
@@ -89,5 +102,6 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Button buttonSingle;
         private CheckBox checkBoxAuto;
+        private PictureBox pictureBox;
     }
 }

@@ -14,24 +14,31 @@ namespace screenshots_00
             buttonSingle.Click += async (sender, e) =>
             {
                 var context = new ScreenshotCommandContext{ OpenEditor = true };
-                SnapshotProviderForm.Execute(context);
-                await context;
-                await ProcessFile(context.Path);
+                SnapshotProviderForm.Execute(context);  // ICommand does not block and is not async.
+                await context;                          // The task is awaited by virtue of the context awaiter.
+                await ProcessFile(context.Path);        // Now we have a lock on the context.
+                context.Release();                      // Release context for any 'other' awaiters of this context.
             };
         }
 
         private async Task ProcessFile(string fullPath)
         {
-            await Task.Run(() =>
-            {
+            Bitmap scaled;
                 using (var orig = Bitmap.FromFile(fullPath))
                 {
-                    using (var scaled = new Bitmap(orig.Width / 4, orig.Height /4))
+                    scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
                     using (Graphics graphics = Graphics.FromImage(scaled))
                     {
                         graphics.DrawImage(orig, 0, 0, scaled.Width, scaled.Height);
+                        BeginInvoke(() =>
+                        {
+                            pictureBox.Image?.Dispose();
+                            pictureBox.Image = scaled;
+                        });
                     }
                 }
+            await Task.Run(() =>
+            {
             });
         }
 

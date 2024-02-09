@@ -14,25 +14,35 @@ namespace screenshots_00
                 var context = new ScreenshotCommandContext{ OpenEditor = true };
                 SnapshotProviderForm.Execute(context);  // ICommand does not block and is not async.
                 await context;                          // The task is awaited by virtue of the context awaiter.
-                await ProcessFile(context.Path);        // Now we have a lock on the context.
+                if (context.Path is string path && File.Exists(path))
+                {                    
+                    await ProcessFile(path);            // Now 'we' hold the lock on the context.
+                }
                 context.Release();                      // Release context for any 'other' awaiters of this context.
             };
             checkBoxAuto.CheckedChanged += async (sender, e) =>
             {
-                if(checkBoxAuto.Checked) 
+                if (checkBoxAuto.Checked) 
                 {
+                    var restartContext = new TimerCommandContext { TimerCommandMode = TimerCommandMode.Restart };
+                    SnapshotProviderForm.Execute(restartContext);
+                    await restartContext;
                     flowLayoutPanel.Controls.Clear();
                     while (checkBoxAuto.Checked)
                     {
                         var context = new ScreenshotCommandContext { OpenEditor = false }; // Different
                         SnapshotProviderForm.Execute(context);
                         await context;
-                        await ProcessFile(context.Path);
+                        if(context.Path is string path && File.Exists(path))
+                        {
+                            await ProcessFile(path);
+                        }
                         context.Release();
                         await Task.Delay(TimeSpan.FromSeconds(5));
                     }
                 }
             };
+            SnapshotProviderForm.Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Start });
         }
 
         private async Task ProcessFile(string fullPath)

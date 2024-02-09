@@ -1,13 +1,13 @@
 # Screenshot loop
 
-There are many, many ways to go about this so this is just how I do this kind of thing in my own app. Let's say that at the heart of this we have a `ScreenshotProviderForm` and to demonstrate we'll make a periodic timer to update elapsed time. Clicking on `ScreenshotProviderForm` a.k.a. "child form" starts and stops the timer. If you [Control + click] it captures a screenshot of itself, saves it to a file, and opens the default editor (e.g. MS Paint) and _does not return from the async method _until MS Paint closes_. Nevertheless, while Paint remains open, the timer continues to run and you can even take another screenshot which will open in a new instance of paint and won't return until _that_ instance of paint closes.
+There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the screenshot/service provider is a decent way of going about it. The `ICommand.Execute(context)` method is _not_ going to be awaitable, but the context argument that passed into it can be. You can [browse the full example]() but basically the screenshot server will do what you ask it to do and release your context when it's done.
+
+Let's say that at the heart of this we have a `ScreenshotProviderForm` and to demonstrate we'll make a periodic timer to update elapsed time. Clicking on `ScreenshotProviderForm` a.k.a. "child form" starts and stops the timer. If you [Control + click] it captures a screenshot of itself, saves it to a file, and opens the default editor (e.g. MS Paint) and _does not return from the async method _until MS Paint closes_. Nevertheless, while Paint remains open, the timer continues to run and you can even take another screenshot which will open in a new instance of paint and won't return until _that_ instance of paint closes.
 
 ___
 
-Now, since it's a "provider" of something, we need an interface, and here is where I feel that a decent way of doing this is to implement [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition). ICommand.Execute(context) is not going to be awaitable, but we'll make is that the context argument that we pass _is_. You can [browse the full example]() but basically the screenshot server will do what you ask it to do and release your context when it's done.
 
 **Server**
-
 ```
 public async void Execute(object? o)
 {
@@ -71,17 +71,22 @@ class AsyncCommandContext
     }
 }
 
-class ToggleTimerCommandContext: AsyncCommandContext {  }
-
-class ScreenshotCommandContext : AsyncCommandContext { public bool OpenEditor { get; set; }
+class ScreenshotCommandContext : AsyncCommandContext 
+{ 
+    public bool OpenEditor { get; set; }
     public string Path { get; internal set; }
 }
 ```
 
 Strictly for demo purposes:
+
+- Main form will request one or more screenshots, scale and process the image with a long-running task, and place the resulting bitmap in its `FlowLayoutPanel`.
+
 - When the [Single] button is clicked, the main form remains responsive while the provider captures a screenshot, opens the editor, and waits for user to close the editor. When that happens, main form will load the captured PNG file and do some long-running processing on it denoted by a progress bar.
 
 - When the Auto option is active, do this on a loop, and of course in that context we would not want to open Paint and wait for it, however we still want to do long-running processing before requesting the next screenshot.
+
+
 
 ___
 

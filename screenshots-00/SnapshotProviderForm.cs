@@ -24,9 +24,9 @@ namespace screenshots_00
                 // Control-click to take screenshot and open in editor.
                 if (ModifierKeys == Keys.Control)
                 {
-                    TakeScreenshot(new ScreenshotCommandContext { OpenEditor = true });
+                    _ = takeScreenshot(new ScreenshotCommandContext { OpenEditor = true });
                 }
-                else Execute(new ToggleTimerCommandContext());
+                else Execute(new TimerCommandContext());
             };
         }
         
@@ -41,7 +41,7 @@ namespace screenshots_00
         /// <returns>
         /// The name of the saved file.
         /// </returns>
-        private async void TakeScreenshot(ScreenshotCommandContext context)
+        private async Task takeScreenshot(ScreenshotCommandContext context)
         {
             using (Bitmap bmp = new Bitmap(Width, Height))
             {
@@ -56,14 +56,16 @@ namespace screenshots_00
                 await Task.Run(()=>bmp.Save(context.Path, System.Drawing.Imaging.ImageFormat.Png));
                 if (context.OpenEditor)
                 {
-                    if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = context.Path }) is Process process)
+                    if ( Process.Start(new ProcessStartInfo 
+                    { 
+                        UseShellExecute = true,
+                        FileName = "mspaint.exe", 
+                        Arguments = context.Path })
+                    is Process process)
                     {
-                        if (InvokeRequired)
-                        { }
                         await process.WaitForExitAsync();
                     }
                 }
-                context.Release();
             }
         }
 
@@ -71,25 +73,56 @@ namespace screenshots_00
 
         public async void Execute(object? o)
         {
-            if (o is ToggleTimerCommandContext contextTT)
+            try
             {
-                if (_stopwatch.IsRunning)
+                if (o is TimerCommandContext contextTT)
                 {
-                    if (_cts is CancellationTokenSource cts && _pollingTask is Task task)
+                    switch (contextTT.TimerCommandMode)
                     {
-                        cts?.Cancel();
-                        await task;
-                        task.Dispose();
+                        case TimerCommandMode.Toggle:
+                            if (_stopwatch.IsRunning) Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Stop });
+                            else Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Start });
+                            break;
+                        case TimerCommandMode.Start:
+                            if (!_stopwatch.IsRunning) _pollingTask = runPeriodicTimer();
+                            break;
+                        case TimerCommandMode.Stop:
+                        case TimerCommandMode.Restart:
+                            if (_cts is CancellationTokenSource cts && _pollingTask is Task task)
+                            {
+                                cts?.Cancel();
+                                await task;
+                                task.Dispose();
+                            }
+                            if (!_stopwatch.IsRunning) _pollingTask = runPeriodicTimer();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (contextTT.TimerCommandMode == TimerCommandMode.Toggle)
+                    {
+                        contextTT.TimerCommandMode =
+                            _stopwatch.IsRunning ?
+                                TimerCommandMode.Stop :
+                                TimerCommandMode.Start;
+                    }
+                    switch (contextTT.TimerCommandMode)
+                    {
+                        case TimerCommandMode.Start:
+                            break;
+                        case TimerCommandMode.Stop:
+                            break;
                     }
                 }
-                else
+                else if (o is ScreenshotCommandContext contextSS)
                 {
-                    _pollingTask = runPeriodicTimer();
+                    await takeScreenshot(contextSS);
                 }
             }
-            else if(o is ScreenshotCommandContext contextSS)
+            finally
             {
-                TakeScreenshot(contextSS);
+                if (o is AsyncCommandContext contextAsync) contextAsync.Release();
             }
         }
 
@@ -159,8 +192,11 @@ namespace screenshots_00
             _busy.Release();
         }
     }
-    class ToggleTimerCommandContext: AsyncCommandContext {  }
+    enum TimerCommandMode { Toggle, Start, Stop,
+        Restart
+    }
+    class TimerCommandContext: AsyncCommandContext { public TimerCommandMode TimerCommandMode { get; set; }}
     class ScreenshotCommandContext : AsyncCommandContext { public bool OpenEditor { get; set; }
-        public string Path { get; internal set; }
+        public string? Path { get; internal set; }
     }
 }

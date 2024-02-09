@@ -52,6 +52,15 @@ namespace screenshots_00
                 Bitmap scaled;
                 using (var orig = Bitmap.FromFile(fullPath))
                 {
+                    // Process long running task.
+                    for (int i = 1; i <= 100; i++)
+                    {
+                        BeginInvoke(() =>
+                        {
+                            progressBar.SetProgress(i);
+                        });
+                        Thread.Sleep(10); // Block this non-ui thread.
+                    }
                     scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
                     using (Graphics graphics = Graphics.FromImage(scaled))
                     {
@@ -66,15 +75,6 @@ namespace screenshots_00
                             flowLayoutPanel.Controls.Add(pictureBox);
                         });
                     }
-                }
-                // Process long running task.
-                for (int i = 1; i <= 100; i++)
-                {
-                    BeginInvoke(() =>
-                    {
-                        progressBar.SetProgress(i);
-                    });
-                    Thread.Sleep(10); // Block this non-ui thread.
                 }
             });
         }

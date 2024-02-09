@@ -17,16 +17,43 @@ namespace screenshots_00
         public SnapshotProviderForm()
         {
             InitializeComponent();
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
-            labelElapsedTime.Click += (sender, e) =>
+            FormBorderStyle = FormBorderStyle.None;
+            labelElapsedTime.Click += async(sender, e) =>
             {
-                if (ModifierKeys == Keys.Control) _ = TakeSnapshotAsync();
+                if (ModifierKeys == Keys.Control) await TakeSnapshotAsync();
                 else Execute(null);
             };
         }
+        
+        int _count = 0;
 
-        private async Task TakeSnapshotAsync()
+        /// <summary>
+        ///  Capture Snapshot of form while elapsed time continues to run.
+        /// </summary>
+        /// <param name="openEditor"
+        /// Show the screenshot in the default PNG editor e.g. Paint and wait for editor to close before returning.
+        /// </param>
+        /// <returns>
+        /// The name of the saved file.
+        /// </returns>
+        public async Task<string> TakeSnapshotAsync(bool openEditor = true)
         {
+            using (Bitmap bmp = new Bitmap(Width, Height))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.CopyFromScreen(Location, new(), Size);
+                }
+                var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
+                Directory.CreateDirectory(folder);
+                var path = Path.Combine(folder, $"Image{_count++:D2}.png");
+                await Task.Run(()=>bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png));
+                if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = path }) is Process process)
+                {
+                    await process.WaitForExitAsync();
+                }
+                return path;
+            }
         }
 
         public bool CanExecute(object? parameter) => true;

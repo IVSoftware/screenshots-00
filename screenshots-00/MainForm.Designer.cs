@@ -31,9 +31,8 @@
             tableLayoutPanel1 = new TableLayoutPanel();
             buttonSingle = new Button();
             checkBoxAuto = new CheckBox();
-            pictureBox = new PictureBox();
+            flowLayoutPanel = new FlowLayoutPanel();
             tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
             SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -41,20 +40,22 @@
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Controls.Add(buttonSingle, 0, 0);
-            tableLayoutPanel1.Controls.Add(checkBoxAuto, 1, 0);
-            tableLayoutPanel1.Dock = DockStyle.Bottom;
-            tableLayoutPanel1.Location = new Point(0, 199);
+            tableLayoutPanel1.Controls.Add(flowLayoutPanel, 0, 0);
+            tableLayoutPanel1.Controls.Add(buttonSingle, 0, 1);
+            tableLayoutPanel1.Controls.Add(checkBoxAuto, 1, 1);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 1;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Size = new Size(478, 45);
+            tableLayoutPanel1.RowCount = 2;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F));
+            tableLayoutPanel1.Size = new Size(478, 244);
             tableLayoutPanel1.TabIndex = 0;
             // 
             // buttonSingle
             // 
             buttonSingle.Anchor = AnchorStyles.None;
-            buttonSingle.Location = new Point(63, 5);
+            buttonSingle.Location = new Point(63, 202);
             buttonSingle.Name = "buttonSingle";
             buttonSingle.Size = new Size(112, 34);
             buttonSingle.TabIndex = 0;
@@ -65,7 +66,7 @@
             // 
             checkBoxAuto.Anchor = AnchorStyles.None;
             checkBoxAuto.Appearance = Appearance.Button;
-            checkBoxAuto.Location = new Point(302, 5);
+            checkBoxAuto.Location = new Point(302, 202);
             checkBoxAuto.Name = "checkBoxAuto";
             checkBoxAuto.Size = new Size(112, 34);
             checkBoxAuto.TabIndex = 1;
@@ -73,27 +74,25 @@
             checkBoxAuto.TextAlign = ContentAlignment.MiddleCenter;
             checkBoxAuto.UseVisualStyleBackColor = true;
             // 
-            // pictureBox
+            // flowLayoutPanel
             // 
-            pictureBox.BackColor = Color.Azure;
-            pictureBox.Location = new Point(0, -13);
-            pictureBox.Name = "pictureBox";
-            pictureBox.Size = new Size(448, 177);
-            pictureBox.TabIndex = 1;
-            pictureBox.TabStop = false;
+            flowLayoutPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.SetColumnSpan(flowLayoutPanel, 2);
+            flowLayoutPanel.Location = new Point(3, 3);
+            flowLayoutPanel.Name = "flowLayoutPanel";
+            flowLayoutPanel.Size = new Size(472, 188);
+            flowLayoutPanel.TabIndex = 1;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(478, 244);
-            Controls.Add(pictureBox);
             Controls.Add(tableLayoutPanel1);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Main Form";
             tableLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBox).EndInit();
             ResumeLayout(false);
         }
 
@@ -102,6 +101,6 @@
         private TableLayoutPanel tableLayoutPanel1;
         private Button buttonSingle;
         private CheckBox checkBoxAuto;
-        private PictureBox pictureBox;
+        private FlowLayoutPanel flowLayoutPanel;
     }
 }

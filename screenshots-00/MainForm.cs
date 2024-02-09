@@ -24,19 +24,23 @@ namespace screenshots_00
         private async Task ProcessFile(string fullPath)
         {
             Bitmap scaled;
-                using (var orig = Bitmap.FromFile(fullPath))
+            using (var orig = Bitmap.FromFile(fullPath))
+            {
+                scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
+                using (Graphics graphics = Graphics.FromImage(scaled))
                 {
-                    scaled = new Bitmap(orig.Width / 4, orig.Height / 4);
-                    using (Graphics graphics = Graphics.FromImage(scaled))
+                    graphics.DrawImage(orig, 0, 0, scaled.Width, scaled.Height);
+                    var pictureBox = new PictureBox
                     {
-                        graphics.DrawImage(orig, 0, 0, scaled.Width, scaled.Height);
-                        BeginInvoke(() =>
-                        {
-                            pictureBox.Image?.Dispose();
-                            pictureBox.Image = scaled;
-                        });
-                    }
+                        Size = scaled.Size,
+                        Image = scaled,
+                    };
+                    BeginInvoke(() =>
+                    {
+                        flowLayoutPanel.Controls.Add(pictureBox);
+                    });
                 }
+            }
             await Task.Run(() =>
             {
             });

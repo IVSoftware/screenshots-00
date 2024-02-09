@@ -21,7 +21,7 @@ namespace screenshots_00
             labelElapsedTime.Click += async(sender, e) =>
             {
                 if (ModifierKeys == Keys.Control) await TakeSnapshotAsync();
-                else Execute(null);
+                else Execute(new SnapshotCommandContext { OpenEditor = true });
             };
         }
         
@@ -56,22 +56,25 @@ namespace screenshots_00
             }
         }
 
-        public bool CanExecute(object? parameter) => true;
+        public bool CanExecute(object? o) => true;
 
-        public async void Execute(object? parameter)
+        public async void Execute(object? o)
         {
-            if(_stopwatch.IsRunning)
+            if (o is SnapshotCommandContext context)
             {
-                if (_cts is CancellationTokenSource cts && _pollingTask is Task task)
+                if (_stopwatch.IsRunning)
                 {
-                    cts?.Cancel();
-                    await task;
-                    task.Dispose();
+                    if (_cts is CancellationTokenSource cts && _pollingTask is Task task)
+                    {
+                        cts?.Cancel();
+                        await task;
+                        task.Dispose();
+                    }
                 }
-            }
-            else
-            {
-                _pollingTask = runPeriodicTimer();                    
+                else
+                {
+                    _pollingTask = runPeriodicTimer();
+                }
             }
         }
 

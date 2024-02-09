@@ -59,6 +59,8 @@ namespace screenshots_00
                 {
                     if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = context.Path }) is Process process)
                     {
+                        if (InvokeRequired)
+                        { }
                         await process.WaitForExitAsync();
                     }
                 }
@@ -70,7 +72,7 @@ namespace screenshots_00
 
         public async void Execute(object? o)
         {
-            if (o is ToggleTimerCommandContext context)
+            if (o is ToggleTimerCommandContext contextTT)
             {
                 if (_stopwatch.IsRunning)
                 {
@@ -85,6 +87,10 @@ namespace screenshots_00
                 {
                     _pollingTask = runPeriodicTimer();
                 }
+            }
+            else if(o is ScreenshotCommandContext contextSS)
+            {
+                TakeScreenshotAsync(contextSS);
             }
         }
 

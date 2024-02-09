@@ -72,7 +72,8 @@ namespace screenshots_00
                         };
                         BeginInvoke(() =>
                         {
-                            flowLayoutPanel.Controls.Add(pictureBox);
+                            flowLayoutPanel.Controls.Add(pictureBox); 
+                            flowLayoutPanel.AutoScrollPosition = new Point(0, flowLayoutPanel.VerticalScroll.Maximum);
                         });
                     }
                 }

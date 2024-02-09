@@ -27,7 +27,7 @@ namespace screenshots_00
                 {
                     _ = takeScreenshot(new ScreenshotCommandContext { OpenEditor = true });
                 }
-                else Execute(new TimerCommandContext());
+                else Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Toggle});
             };
         }
         
@@ -40,7 +40,7 @@ namespace screenshots_00
         /// Show the screenshot in the default PNG editor e.g. Paint and wait for editor to close before returning.
         /// </param>
         /// <returns>
-        /// The name of the saved file.
+        /// The name of the saved file (set to the context).
         /// </returns>
         private async Task takeScreenshot(ScreenshotCommandContext context)
         {
@@ -78,12 +78,15 @@ namespace screenshots_00
             {
                 if (o is TimerCommandContext contextTT)
                 {
+                    toggleResolved:
                     switch (contextTT.TimerCommandMode)
                     {
                         case TimerCommandMode.Toggle:
-                            if (_stopwatch.IsRunning) Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Stop });
-                            else Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Start });
-                            break;
+                            contextTT.TimerCommandMode =
+                                (_stopwatch.IsRunning) ? 
+                                TimerCommandMode.Stop: 
+                                TimerCommandMode.Start;
+                            goto toggleResolved;
                         case TimerCommandMode.Start:
                             if (!_stopwatch.IsRunning) _pollingTask = runPeriodicTimer();
                             break;
@@ -95,7 +98,11 @@ namespace screenshots_00
                                 await task;
                                 task.Dispose();
                             }
-                            if (!_stopwatch.IsRunning) _pollingTask = runPeriodicTimer();
+                            if (contextTT.TimerCommandMode == TimerCommandMode.Restart)
+                            {
+                                contextTT.TimerCommandMode = TimerCommandMode.Start;
+                                goto toggleResolved;
+                            }
                             break;
                         default:
                             break;

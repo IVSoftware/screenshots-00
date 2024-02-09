@@ -58,6 +58,7 @@
             // flowLayoutPanel
             // 
             flowLayoutPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            flowLayoutPanel.AutoScroll = true;
             tableLayoutPanel1.SetColumnSpan(flowLayoutPanel, 2);
             flowLayoutPanel.Location = new Point(3, 3);
             flowLayoutPanel.Name = "flowLayoutPanel";

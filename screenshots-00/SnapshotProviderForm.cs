@@ -18,7 +18,15 @@ namespace screenshots_00
         {
             InitializeComponent();
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
-            labelElapsedTime.Click += (sender, e) => Execute(null);
+            labelElapsedTime.Click += (sender, e) =>
+            {
+                if (ModifierKeys == Keys.Control) _ = TakeSnapshotAsync();
+                else Execute(null);
+            };
+        }
+
+        private async Task TakeSnapshotAsync()
+        {
         }
 
         public bool CanExecute(object? parameter) => true;
@@ -31,6 +39,7 @@ namespace screenshots_00
                 {
                     cts?.Cancel();
                     await task;
+                    task.Dispose();
                 }
             }
             else
@@ -79,7 +88,6 @@ namespace screenshots_00
                 finally
                 {
                     _stopwatch.Stop();
-                    _pollingTask?.Dispose();
                 }
             }
         }

@@ -91,6 +91,9 @@ namespace screenshots_00
                             }
                             if (contextTT.TimerCommandMode == TimerCommandMode.Restart)
                             {
+                                _stopwatch.Reset();
+                                labelElapsedTime.Text = "00:0000";
+                                labelElapsedTime.Refresh();
                                 contextTT.TimerCommandMode = TimerCommandMode.Start;
                                 goto toggleResolved;
                             }

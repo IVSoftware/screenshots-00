@@ -22,8 +22,10 @@ namespace screenshots_00
             };
             checkBoxAuto.CheckedChanged += async (sender, e) =>
             {
-                if (checkBoxAuto.Checked) 
+                if (checkBoxAuto.Checked)
                 {
+                    checkBoxAuto.BackColor = Color.MidnightBlue;
+                    checkBoxAuto.ForeColor = Color.White;
                     var restartContext = new TimerCommandContext { TimerCommandMode = TimerCommandMode.Restart };
                     SnapshotProviderForm.Execute(restartContext);
                     await restartContext;
@@ -33,13 +35,18 @@ namespace screenshots_00
                         var context = new ScreenshotCommandContext { OpenEditor = false }; // Different
                         SnapshotProviderForm.Execute(context);
                         await context;
-                        if(context.Path is string path && File.Exists(path))
+                        if (context.Path is string path && File.Exists(path))
                         {
                             await ProcessFile(path);
                         }
                         context.Release();
                         await Task.Delay(TimeSpan.FromSeconds(5));
                     }
+                }
+                else
+                {
+                    checkBoxAuto.BackColor = Color.Transparent;
+                    checkBoxAuto.ForeColor = SystemColors.ControlText;
                 }
             };
             SnapshotProviderForm.Execute(new TimerCommandContext { TimerCommandMode = TimerCommandMode.Start });

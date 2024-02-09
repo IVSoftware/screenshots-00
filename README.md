@@ -1,4 +1,5 @@
 # Screenshot loop
+
 There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
 
 ```
@@ -52,7 +53,7 @@ class ScreenshotCommandContext : AsyncCommandContext
 ```
 ___
 
-You can [browse the full example](https://github.com/IVSoftware/screenshots-00.git) but basically the screenshot server will do what you ask it to do and release your context when it's done. To prove this out, the screenshot provider will be this top-level borderless form:
+You can [browse the full example](https://github.com/IVSoftware/screenshots-00.git) but basically the screenshot server will do what you ask it to do and release your context when it's done. One nuance is that it to helps avoid the kind of async deadlocks that can cause even the most asynchronous of apps to hang. To prove this out, the screenshot provider will be this top-level borderless form:
 ___
 
 [![child window][1]][1]

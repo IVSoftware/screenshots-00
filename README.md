@@ -6,7 +6,24 @@ public partial class SnapshotProviderForm : Form, ICommand
 {
     public event EventHandler? CanExecuteChanged;
     public bool CanExecute(object? parameter) { return true; }
-    public void Execute(object? parameter) { ...}
+    public void Execute(object? parameter) 
+    {
+        try
+        {
+            Debug.Assert(
+                !InvokeRequired, 
+                "Usually on the UI thread at this point (because e.g. a button was clicked.");
+            await Task.Run(() => {  /* Do something async on a background thread e.g. */ });
+            await Task.Delay();     /* Do something async 'on' the UI thread          */  
+        }
+        finally
+        {
+            if(o is AsyncCommandContext awaitable) 
+            {
+                awaitable.Release();
+            }
+        }
+    }
 }
 ```
 ___

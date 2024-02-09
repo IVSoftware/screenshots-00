@@ -1,53 +1,21 @@
 # Screenshot loop
+There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
 
-There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the screenshot/service provider is a decent way of going about it. The `ICommand.Execute(context)` method is _not_ going to be awaitable, but the context argument that passed into it can be. You can [browse the full example]() but basically the screenshot server will do what you ask it to do and release your context when it's done.
-
-Let's say that at the heart of this we have a `ScreenshotProviderForm` and to demonstrate we'll make a periodic timer to update elapsed time. Clicking on `ScreenshotProviderForm` a.k.a. "child form" starts and stops the timer. If you [Control + click] it captures a screenshot of itself, saves it to a file, and opens the default editor (e.g. MS Paint) and _does not return from the async method _until MS Paint closes_. Nevertheless, while Paint remains open, the timer continues to run and you can even take another screenshot which will open in a new instance of paint and won't return until _that_ instance of paint closes.
-
+```
+public partial class SnapshotProviderForm : Form, ICommand
+{
+    public event EventHandler? CanExecuteChanged;
+    public bool CanExecute(object? parameter) { return true; }
+    public void Execute(object? parameter) { ...}
+}
+```
 ___
 
+The `ICommand.Execute(context)` method is _not_ going to be awaitable, but the context argument that gets passed into it can be. 
 
-**Server**
-```
-public async void Execute(object? o)
-{
-    if( o is ScreenshotCommandContext contextSS)
-    {
-        // Capture the screenshot and release the context when finished.
-        TakeScreenshot(contextSS);
-    }
-}
+**Context passed as argument to ICommand.Execute**
 
-private async void TakeScreenshot(ScreenshotCommandContext context)
-{
-    using (Bitmap bmp = new Bitmap(Width, Height))
-    {
-        using (Graphics g = Graphics.FromImage(bmp))
-        {
-            g.CopyFromScreen(Location, new(), Size);
-        }
-        var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images");
-        Directory.CreateDirectory(folder);
-        context.Path = Path.Combine(folder, $"Image{_count++:D2}.png");
-
-        await Task.Run(()=>bmp.Save(context.Path, System.Drawing.Imaging.ImageFormat.Png));
-        if (context.OpenEditor)
-        {
-            if (Process.Start(new ProcessStartInfo { UseShellExecute = true, FileName = context.Path }) is Process process)
-            {
-                if (InvokeRequired)
-                { }
-                await process.WaitForExitAsync();
-            }
-        }
-        context.Release();
-    }
-}
-```
-
-**Client**
-```csharp
-class AsyncCommandContext
+```csharpclass AsyncCommandContext
 {
     private SemaphoreSlim _busy { get; } = new SemaphoreSlim(0, 1);
     public TaskAwaiter GetAwaiter()
@@ -70,31 +38,35 @@ class AsyncCommandContext
         _busy.Release();
     }
 }
+enum TimerCommandMode { Toggle, Start, Stop, Restart }
+class TimerCommandContext: AsyncCommandContext
+{
+    public TimerCommandMode TimerCommandMode { get; set; }
+}
 
-class ScreenshotCommandContext : AsyncCommandContext 
+class ScreenshotCommandContext : AsyncCommandContext
 { 
     public bool OpenEditor { get; set; }
-    public string Path { get; internal set; }
+    public string? Path { get; internal set; }
 }
 ```
+___
 
-Strictly for demo purposes:
+You can [browse the full example](https://github.com/IVSoftware/screenshots-00.git) but basically the screenshot server will do what you ask it to do and release your context when it's done. To prove this out, the screenshot provider will be this top-level borderless form:
+___
 
-- Main form will request one or more screenshots, scale and process the image with a long-running task, and place the resulting bitmap in its `FlowLayoutPanel`.
+[![child window][1]][1]
+___
 
-- When the [Single] button is clicked, the main form remains responsive while the provider captures a screenshot, opens the editor, and waits for user to close the editor. When that happens, main form will load the captured PNG file and do some long-running processing on it denoted by a progress bar.
-
-- When the Auto option is active, do this on a loop, and of course in that context we would not want to open Paint and wait for it, however we still want to do long-running processing before requesting the next screenshot.
-
-
+The stand-alone behavior of this child form is to toggle a stopwatch when clicked, and when it's Control-clicked to capture a single screenshot and display it in a new instance of MS Paint and not return until MS Paint is closed by the user.  When the main form requests this action below, it means that if the user makes changes in Paint they will be reflected in the file that the main for subjects to the long-running processing.
 
 ___
 
-So to directly answer the question
+So for the part of the question
 
 >Call an async method (within a child form)...
 
-here's is one approach:
+here's is what that could look like on the client (Main Form) side:
 
 ```csharp
 public partial class MainForm : Form
@@ -129,6 +101,8 @@ public partial class MainForm : Form
         };
     }
 ```
+
+and for the part of the question
 
 >from a thread from the main form
 
@@ -167,3 +141,21 @@ private async Task ProcessFile(string fullPath)
     });
 }
 ```
+___
+So here, after clicking the [Single] button on the main form twice, MainForm continues to be responsive (and the stopwatch continues to increment) while waiting for the user to finish the edits and close the Paint window and when that happens it will process the resulting file and add it to the `FlowLayoutPanel` on the main form. 
+
+
+
+[![screenshot][2]][2]
+
+___
+
+
+Obviously, when the [Auto] loop is executing on the client side, we skip the part about opening Paint and waiting for user. Here we're just taking periodic screenshots and adding them to `FlowLayoutPanel after processing with long-running-task denoted by `ProgressBar`.
+
+[![auto][3]][3]
+
+
+  [1]: https://i.stack.imgur.com/Fw0jk.png
+  [2]: https://i.stack.imgur.com/WnJ0P.png
+  [3]: https://i.stack.imgur.com/fRqoH.png

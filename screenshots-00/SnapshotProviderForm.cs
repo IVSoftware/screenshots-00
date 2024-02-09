@@ -13,6 +13,7 @@ using System.Windows.Input;
 
 namespace screenshots_00
 {
+
     public partial class SnapshotProviderForm : Form, ICommand
     {
         public SnapshotProviderForm()
@@ -195,8 +196,14 @@ namespace screenshots_00
     enum TimerCommandMode { Toggle, Start, Stop,
         Restart
     }
-    class TimerCommandContext: AsyncCommandContext { public TimerCommandMode TimerCommandMode { get; set; }}
-    class ScreenshotCommandContext : AsyncCommandContext { public bool OpenEditor { get; set; }
+    class TimerCommandContext: AsyncCommandContext
+    {
+        public TimerCommandMode TimerCommandMode { get; set; }
+    }
+
+    class ScreenshotCommandContext : AsyncCommandContext
+    { 
+        public bool OpenEditor { get; set; }
         public string? Path { get; internal set; }
     }
 }

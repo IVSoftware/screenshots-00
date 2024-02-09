@@ -1,5 +1,4 @@
 # Screenshot loop
-
 There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
 
 ```
@@ -61,7 +60,7 @@ You can [browse the full example](https://github.com/IVSoftware/screenshots-00.g
 
 [![child window][1]][1]
 
-The stand-alone behavior of this child form is to toggle a stopwatch when clicked, and when it's Control-clicked to capture a single screenshot and display it in a new instance of MS Paint and not return until MS Paint is closed by the user.  When the main form requests this action below, it means that if the user makes changes in Paint they will be reflected in the file that the main form subjects to the long-running processing.
+The stand-alone behavior of this child form is to toggle a stopwatch when clicked, and when it is control-clicked to capture a single screenshot and display it in a new instance of MS Paint and not release the context _until MS Paint is closed by the user_.  When the main form requests this action below, it means that if the user makes changes in Paint they will be reflected in the file that the main form subjects to the long-running processing.
 
 ___
 
@@ -152,7 +151,7 @@ This shows the **Desktop** window with  two screen captures open in **Paint** af
 
 
 
-[![screenshot][2]][2]
+[![pending edits in MS Paint][2]][2]
 
 ___
 
@@ -164,5 +163,5 @@ Obviously, when the [Auto] loop is executing on the client side, we skip the par
 
 
   [1]: https://i.stack.imgur.com/Fwk9r.png
-  [2]: https://i.stack.imgur.com/WnJ0P.png
-  [3]: https://i.stack.imgur.com/fRqoH.pngfRqoH.png
+  [2]: https://i.stack.imgur.com/qNYLx.png
+  [3]: https://i.stack.imgur.com/fRqoH.png

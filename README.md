@@ -54,7 +54,8 @@ class ScreenshotCommandContext : AsyncCommandContext
 ___
 
 You can [browse the full example](https://github.com/IVSoftware/screenshots-00.git) but basically the screenshot server will do what you ask it to do and release your context when it's done. One nuance is that it to helps avoid the kind of async deadlocks that can cause even the most asynchronous of apps to hang. To prove this out, the screenshot provider will be this top-level borderless form:
-___
+
+**SnapshotProviderForm**
 
 [![child window][1]][1]
 

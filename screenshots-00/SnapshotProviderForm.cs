@@ -19,16 +19,15 @@ namespace screenshots_00
         {
             InitializeComponent();
             FormBorderStyle = FormBorderStyle.None;
-            labelElapsedTime.Click += async(sender, e) =>
+            labelElapsedTime.Click += (sender, e) =>
             {
                 // Control-click to take screenshot and open in editor.
                 if (ModifierKeys == Keys.Control)
                 {
-                    TakeScreenshotAsync(new ScreenshotCommandContext { OpenEditor = true });
+                    TakeScreenshot(new ScreenshotCommandContext { OpenEditor = true });
                 }
                 else Execute(new ToggleTimerCommandContext());
             };
-            Execute(new ToggleTimerCommandContext());
         }
         
         int _count = 0;
@@ -42,7 +41,7 @@ namespace screenshots_00
         /// <returns>
         /// The name of the saved file.
         /// </returns>
-        private async void TakeScreenshotAsync(ScreenshotCommandContext context)
+        private async void TakeScreenshot(ScreenshotCommandContext context)
         {
             using (Bitmap bmp = new Bitmap(Width, Height))
             {
@@ -90,7 +89,7 @@ namespace screenshots_00
             }
             else if(o is ScreenshotCommandContext contextSS)
             {
-                TakeScreenshotAsync(contextSS);
+                TakeScreenshot(contextSS);
             }
         }
 

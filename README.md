@@ -1,4 +1,5 @@
 # Screenshot loop
+
 There are many, many ways to go about this but when I want to do this kind of thing in my own app I find that implementing [ICommand](https://learn.microsoft.com/en-us/dotnet/api/system.windows.input.icommand?view=net-8.0#definition) in the child window that is the screenshot/service provider is a decent way of going about it. 
 
 ```
@@ -68,7 +69,7 @@ ___
 
 >Call an async method (within a child form)...
 
-here's is what that could look like on the client (Main Form) side:
+this will indeed call the async method, but it will call the async method through the interface on a call that is not awaited. Passing in an awaitable context provides the means for the client to wait for the work product to complete without blocking anything. Here's is what that could look like on the client (Main Form) side:
 
 ```csharp
 public partial class MainForm : Form
@@ -164,4 +165,4 @@ Obviously, when the [Auto] loop is executing on the client side, we skip the par
 
   [1]: https://i.stack.imgur.com/Fwk9r.png
   [2]: https://i.stack.imgur.com/WnJ0P.png
-  [3]: https://i.stack.imgur.com/fRqoH.png
+  [3]: https://i.stack.imgur.com/fRqoH.pngfRqoH.png
